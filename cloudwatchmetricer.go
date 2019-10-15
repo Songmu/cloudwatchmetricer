@@ -22,6 +22,12 @@ type Metric struct {
 	Dimensions map[string]string
 }
 
+type MetricerFunc func(context.Context) ([]*Metric, error)
+
+func (me MetricerFunc) Metricer(ctx context.Context) ([]*Metric, error) {
+	return me(ctx)
+}
+
 type Broker struct {
 	ErrorHandler func(error)
 	svc          cloudwatchiface.CloudWatchAPI
