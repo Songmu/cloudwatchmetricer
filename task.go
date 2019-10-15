@@ -32,8 +32,10 @@ func (ta *task) start(ctx context.Context, ch chan *task) {
 	next := time.Now()
 	for {
 		now := time.Now()
-		nextInterval := ta.interval - (now.Sub(next) % ta.interval)
-		next = now.Add(nextInterval)
+		sub := now.Sub(next)
+		times := (sub / ta.interval) + 1
+
+		next = next.Add(ta.interval * times)
 		select {
 		case <-ctx.Done():
 			return
