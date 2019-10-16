@@ -100,9 +100,11 @@ func (b *Broker) putMetrics(ctx context.Context, ta *task) {
 			fmt.Errorf("failed to getMetricData. task: %s, err: %w", ta.name, err))
 		return
 	}
-	if _, err := b.svc.PutMetricDataWithContext(ctx, params); err != nil {
-		b.handleError(
-			fmt.Errorf("failed to PutMetricData. task: %s, err: %w", ta.name, err))
+	for _, p := range params {
+		if _, err := b.svc.PutMetricDataWithContext(ctx, p); err != nil {
+			b.handleError(
+				fmt.Errorf("failed to PutMetricData. task: %s, err: %w", ta.name, err))
+		}
 	}
 }
 
