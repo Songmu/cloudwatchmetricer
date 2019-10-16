@@ -72,7 +72,7 @@ Loop:
 			taskWg.Add(1)
 			go func(ta *task) {
 				defer taskWg.Done()
-				b.putMetics(ctx, ta)
+				b.putMetrics(ctx, ta)
 			}(ta)
 		}
 	}
@@ -85,14 +85,14 @@ Loop:
 		taskWg.Add(1)
 		go func(ta *task) {
 			defer taskWg.Done()
-			b.putMetics(ctx, ta)
+			b.putMetrics(ctx, ta)
 		}(ta)
 	}
 	taskWg.Wait()
 	return nil
 }
 
-func (b *Broker) putMetics(ctx context.Context, ta *task) {
+func (b *Broker) putMetrics(ctx context.Context, ta *task) {
 	params, err := ta.getMetricData(ctx)
 	if err != nil {
 		// XXX needs to define error types?
