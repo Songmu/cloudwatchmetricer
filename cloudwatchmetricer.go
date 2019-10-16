@@ -24,9 +24,11 @@ type Metric struct {
 
 type Func func(context.Context) ([]*Metric, error)
 
-func (fn Func) Metricer(ctx context.Context) ([]*Metric, error) {
+func (fn Func) Metrics(ctx context.Context) ([]*Metric, error) {
 	return fn(ctx)
 }
+
+var _ Metricer = Func(func(context.Context) ([]*Metric, error) { return nil, nil })
 
 type Broker struct {
 	ErrorHandler func(error)
