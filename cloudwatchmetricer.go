@@ -22,10 +22,10 @@ type Metric struct {
 	Dimensions map[string]string
 }
 
-type MetricerFunc func(context.Context) ([]*Metric, error)
+type Func func(context.Context) ([]*Metric, error)
 
-func (me MetricerFunc) Metricer(ctx context.Context) ([]*Metric, error) {
-	return me(ctx)
+func (fn Func) Metricer(ctx context.Context) ([]*Metric, error) {
+	return fn(ctx)
 }
 
 type Broker struct {
