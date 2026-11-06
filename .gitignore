@@ -1,6 +1,7 @@
 .*
 !.gitignore
 !.gitattributes
+!.tagpr
 !.github/
 coverage.out
 dist/
