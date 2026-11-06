@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch/types"
 )
 
 func until(ti time.Time) <-chan struct{} {
@@ -67,10 +68,10 @@ func (ta *task) getMetricData(ctx context.Context) ([]*cloudwatch.PutMetricDataI
 			Namespace: aws.String(ta.namespace),
 		}
 		for _, me := range metrics[start:end] {
-			var dim []*cloudwatch.Dimension
+			var dim []types.Dimension
 			if me.Dimensions != nil {
 				for k, v := range me.Dimensions {
-					dim = append(dim, &cloudwatch.Dimension{
+					dim = append(dim, types.Dimension{
 						Name:  aws.String(k),
 						Value: aws.String(v),
 					})
@@ -80,10 +81,10 @@ func (ta *task) getMetricData(ctx context.Context) ([]*cloudwatch.PutMetricDataI
 			if ti.IsZero() {
 				ti = now
 			}
-			params.MetricData = append(params.MetricData, &cloudwatch.MetricDatum{
+			params.MetricData = append(params.MetricData, types.MetricDatum{
 				MetricName: aws.String(me.Name),
 				Value:      aws.Float64(me.Value),
-				Unit:       aws.String(me.Unit),
+				Unit:       types.StandardUnit(me.Unit),
 				Timestamp:  aws.Time(ti),
 				Dimensions: dim,
 			})

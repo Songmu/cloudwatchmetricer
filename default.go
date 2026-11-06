@@ -2,23 +2,27 @@ package cloudwatchmetricer
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 )
 
-var (
-	brInit        sync.Once
-	defaultBroker *Broker
-)
+var defaultBroker = sync.OnceValue(newDefaultBroker)
 
+func newDefaultBroker() *Broker {
+	cfg, err := config.LoadDefaultConfig(context.Background())
+	if err != nil {
+		panic(fmt.Errorf("failed to load AWS configuration: %w", err))
+	}
+	return New(cloudwatch.NewFromConfig(cfg))
+}
+
+// DefaultBroker returns the shared broker and panics if AWS configuration cannot be loaded.
 func DefaultBroker() *Broker {
-	brInit.Do(func() {
-		defaultBroker = New(cloudwatch.New(session.New()))
-	})
-	return defaultBroker
+	return defaultBroker()
 }
 
 func Run(ctx context.Context) error {
