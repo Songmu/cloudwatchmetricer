@@ -2,10 +2,6 @@
 deps:
 	go mod download
 
-.PHONY: devel-deps
-devel-deps:
-	go install github.com/Songmu/godzil/cmd/godzil@v0.23.2
-
 .PHONY: test
 test:
 	go test -race ./...
@@ -19,7 +15,3 @@ lint:
 cover:
 	go test -race -coverprofile=coverage.out -covermode=atomic ./...
 	go tool cover -func=coverage.out
-
-.PHONY: release
-release: devel-deps
-	godzil release

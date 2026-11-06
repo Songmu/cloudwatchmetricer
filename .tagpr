@@ -1,0 +1,4 @@
+[tagpr]
+	releaseBranch = master
+	versionFile = version.go
+	vPrefix = true
