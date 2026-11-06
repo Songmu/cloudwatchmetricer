@@ -1,9 +1,7 @@
 module github.com/Songmu/cloudwatchmetricer
 
-go 1.13
+go 1.26.0
 
-require (
-	github.com/aws/aws-sdk-go v1.25.12
-	github.com/stretchr/testify v1.4.0 // indirect
-	golang.org/x/net v0.0.0-20191014212845-da9a3fd4c582 // indirect
-)
+require github.com/aws/aws-sdk-go v1.55.8
+
+require github.com/jmespath/go-jmespath v0.4.0 // indirect
