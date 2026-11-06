@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/cloudwatch/cloudwatchiface"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 )
 
 type Metricer interface {
@@ -32,7 +32,7 @@ var _ Metricer = Func(func(context.Context) ([]*Metric, error) { return nil, nil
 
 type Broker struct {
 	ErrorHandler func(error)
-	svc          cloudwatchiface.CloudWatchAPI
+	svc          CloudWatchAPI
 
 	registerdTasks chan *task
 	taskCh         chan *task
@@ -40,7 +40,11 @@ type Broker struct {
 	done bool
 }
 
-func New(svc cloudwatchiface.CloudWatchAPI) *Broker {
+type CloudWatchAPI interface {
+	PutMetricData(context.Context, *cloudwatch.PutMetricDataInput, ...func(*cloudwatch.Options)) (*cloudwatch.PutMetricDataOutput, error)
+}
+
+func New(svc CloudWatchAPI) *Broker {
 	return &Broker{
 		registerdTasks: make(chan *task, 100),
 		taskCh:         make(chan *task, 100),
@@ -101,7 +105,7 @@ func (b *Broker) putMetrics(ctx context.Context, ta *task) {
 		return
 	}
 	for _, p := range params {
-		if _, err := b.svc.PutMetricDataWithContext(ctx, p); err != nil {
+		if _, err := b.svc.PutMetricData(ctx, p); err != nil {
 			b.handleError(
 				fmt.Errorf("failed to PutMetricData. task: %s, err: %w", ta.name, err))
 		}

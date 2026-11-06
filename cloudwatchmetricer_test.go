@@ -6,18 +6,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/service/cloudwatch"
-	"github.com/aws/aws-sdk-go/service/cloudwatch/cloudwatchiface"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 )
 
 type mockCloudWatch struct {
-	cloudwatchiface.CloudWatchAPI
-	putMetricData func(aws.Context, *cloudwatch.PutMetricDataInput) (*cloudwatch.PutMetricDataOutput, error)
+	putMetricData func(context.Context, *cloudwatch.PutMetricDataInput) (*cloudwatch.PutMetricDataOutput, error)
 }
 
-func (m *mockCloudWatch) PutMetricDataWithContext(ctx aws.Context, input *cloudwatch.PutMetricDataInput, _ ...request.Option) (*cloudwatch.PutMetricDataOutput, error) {
+func (m *mockCloudWatch) PutMetricData(ctx context.Context, input *cloudwatch.PutMetricDataInput, _ ...func(*cloudwatch.Options)) (*cloudwatch.PutMetricDataOutput, error) {
 	return m.putMetricData(ctx, input)
 }
 
@@ -41,12 +38,12 @@ func TestBrokerPutMetrics(t *testing.T) {
 			calls := 0
 			var handled []error
 			broker := New(&mockCloudWatch{
-				putMetricData: func(got aws.Context, input *cloudwatch.PutMetricDataInput) (*cloudwatch.PutMetricDataOutput, error) {
+				putMetricData: func(got context.Context, input *cloudwatch.PutMetricDataInput) (*cloudwatch.PutMetricDataOutput, error) {
 					if got != ctx {
 						t.Error("API received a different context")
 					}
-					if aws.StringValue(input.Namespace) != "test/broker" {
-						t.Errorf("namespace = %q", aws.StringValue(input.Namespace))
+					if aws.ToString(input.Namespace) != "test/broker" {
+						t.Errorf("namespace = %q", aws.ToString(input.Namespace))
 					}
 					calls++
 					if calls == 1 && tt.apiErr != nil {
