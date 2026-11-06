@@ -1,13 +1,11 @@
 cloudwatchmetricer
 =======
 
-[![Build Status](https://travis-ci.org/Songmu/cloudwatchmetricer.svg?branch=master)][travis]
-[![Coverage Status](https://coveralls.io/repos/Songmu/cloudwatchmetricer/badge.svg?branch=master)][coveralls]
+[![Test Status](https://github.com/Songmu/cloudwatchmetricer/actions/workflows/test.yml/badge.svg?branch=master)][actions]
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![GoDoc](https://godoc.org/github.com/Songmu/cloudwatchmetricer?status.svg)][godoc]
 
-[travis]: https://travis-ci.org/Songmu/cloudwatchmetricer
-[coveralls]: https://coveralls.io/r/Songmu/cloudwatchmetricer?branch=master
+[actions]: https://github.com/Songmu/cloudwatchmetricer/actions/workflows/test.yml
 [license]: https://github.com/Songmu/cloudwatchmetricer/blob/master/LICENSE
 [godoc]: https://godoc.org/github.com/Songmu/cloudwatchmetricer
 

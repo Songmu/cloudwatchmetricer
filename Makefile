@@ -1,31 +1,24 @@
-u := $(if $(update),-u)
-
-export GO111MODULE=on
-
 .PHONY: deps
 deps:
-	go get ${u} -d
-	go mod tidy
+	go mod download
 
 .PHONY: devel-deps
-devel-deps: deps
-	GO111MODULE=off go get ${u} \
-	  golang.org/x/lint/golint            \
-	  github.com/mattn/goveralls          \
-	  github.com/Songmu/godzil/cmd/godzil
+devel-deps:
+	go install github.com/Songmu/godzil/cmd/godzil@v0.23.2
 
 .PHONY: test
-test: deps
-	go test
+test:
+	go test -race ./...
 
 .PHONY: lint
-lint: devel-deps
-	go vet
-	golint -set_exit_status
+lint:
+	go vet ./...
+	@files="$$(gofmt -l .)"; if [ -n "$$files" ]; then printf 'Run gofmt on:\n%s\n' "$$files"; exit 1; fi
 
 .PHONY: cover
-cover: devel-deps
-	goveralls
+cover:
+	go test -race -coverprofile=coverage.out -covermode=atomic ./...
+	go tool cover -func=coverage.out
 
 .PHONY: release
 release: devel-deps
