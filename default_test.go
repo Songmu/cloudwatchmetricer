@@ -1,15 +1,19 @@
 package cloudwatchmetricer
 
 import (
-	"fmt"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
 )
 
 func TestDefaultBroker(t *testing.T) {
+	original := defaultBroker
+	t.Cleanup(func() { defaultBroker = original })
+	defaultBroker = sync.OnceValues(newDefaultBroker)
+
 	dir := t.TempDir()
 	configPath := filepath.Join(dir, "config")
 	t.Setenv("AWS_CONFIG_FILE", configPath)
@@ -35,12 +39,23 @@ func TestDefaultBroker(t *testing.T) {
 
 	t.Run("reports missing profile", func(t *testing.T) {
 		t.Setenv("AWS_PROFILE", "cloudwatchmetricer-missing-profile")
+		defaultBroker = sync.OnceValues(newDefaultBroker)
+		broker, err := defaultBroker()
+		if broker != nil || err == nil || !strings.Contains(err.Error(), "failed to load AWS configuration:") {
+			t.Fatalf("initialization = (%v, %v), want nil broker and AWS configuration error", broker, err)
+		}
+		if got := Register("test", "test/metrics", 0, nil); got != err {
+			t.Errorf("Register error = %v, want cached %v", got, err)
+		}
+		if got := Run(t.Context()); got != err {
+			t.Errorf("Run error = %v, want cached %v", got, err)
+		}
 		defer func() {
 			got := recover()
-			if got == nil || !strings.Contains(fmt.Sprint(got), "failed to load AWS configuration:") {
-				t.Errorf("panic = %v, want AWS configuration error", got)
+			if got != err {
+				t.Errorf("panic = %v, want cached %v", got, err)
 			}
 		}()
-		newDefaultBroker()
+		DefaultBroker()
 	})
 }
